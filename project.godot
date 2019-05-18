@@ -1,0 +1,39 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "Node",
+"class": "LifeEventsHandler",
+"language": "GDScript",
+"path": "res://systems/life_events/LifeEventsHandler.gd"
+} ]
+_global_script_class_icons={
+"LifeEventsHandler": ""
+}
+
+[application]
+
+config/name="Gecko Experiment"
+config/icon="res://icon.png"
+
+[autoload]
+
+global="*res://scripts/global.gd"
+EventBus="*res://scripts/EventBus.gd"
+DataStore="*res://scripts/DataStore.gd"
+helpers="*res://scripts/helpers.gd"
+math="*res://scripts/math.gd"
+
+[rendering]
+
+quality/driver/driver_name="GLES2"
+vram_compression/import_etc=true
+vram_compression/import_etc2=false
+environment/default_environment="res://default_env.tres"

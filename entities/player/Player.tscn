@@ -1,0 +1,61 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://entities/player/Player.gd" type="Script" id=1]
+[ext_resource path="res://systems/health/Health.tscn" type="PackedScene" id=2]
+[ext_resource path="res://entities/player/Graphics.tscn" type="PackedScene" id=3]
+[ext_resource path="res://handlers/MovementHandler.tscn" type="PackedScene" id=4]
+[ext_resource path="res://entities/player/Pivot.gd" type="Script" id=5]
+
+[sub_resource type="CapsuleShape2D" id=1]
+radius = 8.0
+height = 14.0
+
+[sub_resource type="ParticlesMaterial" id=2]
+emission_shape = 1
+emission_sphere_radius = 8.9
+flag_disable_z = true
+spread = 180.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 183.9
+initial_velocity_random = 0.33
+angular_velocity = 3.28508e-18
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+radial_accel = 18.4
+color = Color( 0.843137, 0.0980392, 0.905882, 1 )
+hue_variation = 0.14
+hue_variation_random = 0.6
+
+[node name="Player" type="KinematicBody2D"]
+script = ExtResource( 1 )
+
+[node name="Health" parent="." instance=ExtResource( 2 )]
+invincible = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource( 1 )
+
+[node name="Sprite" parent="." instance=ExtResource( 3 )]
+
+[node name="MovementHandler" parent="." instance=ExtResource( 4 )]
+
+[node name="Pivot" type="Position2D" parent="."]
+script = ExtResource( 5 )
+
+[node name="CameraOffset" type="Position2D" parent="Pivot"]
+position = Vector2( 102.357, 0.27739 )
+
+[node name="Camera2D" type="Camera2D" parent="Pivot/CameraOffset"]
+current = true
+smoothing_enabled = true
+editor_draw_drag_margin = true
+
+[node name="SanitySplatter" type="Particles2D" parent="."]
+amount = 150
+lifetime = 0.5
+preprocess = 1.0
+explosiveness = 0.72
+randomness = 1.0
+local_coords = false
+process_material = SubResource( 2 )
+

@@ -1,0 +1,167 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://systems/life_events/LifeEvent.gd" type="Script" id=1]
+[ext_resource path="res://fonts/Libre_Franklin/LibreFranklin.tres" type="DynamicFont" id=2]
+[ext_resource path="res://graphics/hourglass_symbol.png" type="Texture" id=3]
+[ext_resource path="res://graphics/impact_symbol.png" type="Texture" id=4]
+[ext_resource path="res://ui/Theme.tres" type="Theme" id=5]
+
+[sub_resource type="StyleBoxFlat" id=1]
+content_margin_left = 10.0
+content_margin_right = 10.0
+content_margin_top = 3.0
+content_margin_bottom = 3.0
+bg_color = Color( 0.156863, 0.447059, 0.0901961, 1 )
+
+[sub_resource type="StyleBoxFlat" id=2]
+content_margin_left = 10.0
+content_margin_right = 10.0
+content_margin_top = 3.0
+content_margin_bottom = 3.0
+bg_color = Color( 0.737255, 0.188235, 0.188235, 1 )
+
+[node name="LifeEvent" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+rect_min_size = Vector2( 0, 60 )
+script = ExtResource( 1 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+pause_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color( 0, 0, 0, 0.564706 )
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_top = -52.0
+margin_bottom = 52.0
+size_flags_horizontal = 3
+
+[node name="CenterContainer" type="CenterContainer" parent="MarginContainer"]
+margin_right = 682.0
+margin_bottom = 134.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/CenterContainer"]
+margin_left = 229.0
+margin_right = 452.0
+margin_bottom = 134.0
+
+[node name="TextValue" type="Label" parent="MarginContainer/CenterContainer/VBoxContainer"]
+margin_right = 223.0
+margin_bottom = 20.0
+custom_fonts/font = ExtResource( 2 )
+text = "You did some awesome thing!"
+valign = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/CenterContainer/VBoxContainer"]
+margin_top = 24.0
+margin_right = 223.0
+margin_bottom = 96.0
+custom_constants/margin_top = 20
+custom_constants/margin_bottom = 20
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/CenterContainer/VBoxContainer/MarginContainer"]
+margin_top = 20.0
+margin_right = 223.0
+margin_bottom = 52.0
+custom_constants/separation = 25
+alignment = 1
+
+[node name="CostContainer" type="HBoxContainer" parent="MarginContainer/CenterContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+margin_left = 27.0
+margin_right = 95.0
+margin_bottom = 32.0
+
+[node name="Hourglass" type="TextureRect" parent="MarginContainer/CenterContainer/VBoxContainer/MarginContainer/HBoxContainer/CostContainer"]
+margin_right = 32.0
+margin_bottom = 32.0
+texture = ExtResource( 3 )
+
+[node name="CostLabel" type="Label" parent="MarginContainer/CenterContainer/VBoxContainer/MarginContainer/HBoxContainer/CostContainer"]
+visible = false
+margin_left = 36.0
+margin_top = 6.0
+margin_right = 74.0
+margin_bottom = 26.0
+custom_fonts/font = ExtResource( 2 )
+text = "Cost:"
+
+[node name="Minus" type="Label" parent="MarginContainer/CenterContainer/VBoxContainer/MarginContainer/HBoxContainer/CostContainer"]
+visible = false
+margin_left = 36.0
+margin_top = 9.0
+margin_right = 41.0
+margin_bottom = 23.0
+text = "-"
+align = 2
+
+[node name="CostValue" type="Label" parent="MarginContainer/CenterContainer/VBoxContainer/MarginContainer/HBoxContainer/CostContainer"]
+margin_left = 36.0
+margin_top = 6.0
+margin_right = 68.0
+margin_bottom = 26.0
+custom_fonts/font = ExtResource( 2 )
+text = "400"
+
+[node name="RewardContainer" type="HBoxContainer" parent="MarginContainer/CenterContainer/VBoxContainer/MarginContainer/HBoxContainer"]
+margin_left = 120.0
+margin_right = 196.0
+margin_bottom = 32.0
+
+[node name="Impact" type="TextureRect" parent="MarginContainer/CenterContainer/VBoxContainer/MarginContainer/HBoxContainer/RewardContainer"]
+margin_right = 32.0
+margin_bottom = 32.0
+texture = ExtResource( 4 )
+
+[node name="RewardLabel" type="Label" parent="MarginContainer/CenterContainer/VBoxContainer/MarginContainer/HBoxContainer/RewardContainer"]
+visible = false
+margin_left = 36.0
+margin_top = 6.0
+margin_right = 97.0
+margin_bottom = 26.0
+custom_fonts/font = ExtResource( 2 )
+text = "Reward:"
+
+[node name="RewardValue" type="Label" parent="MarginContainer/CenterContainer/VBoxContainer/MarginContainer/HBoxContainer/RewardContainer"]
+margin_left = 36.0
+margin_top = 6.0
+margin_right = 76.0
+margin_bottom = 26.0
+custom_fonts/font = ExtResource( 2 )
+text = "1000"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/CenterContainer/VBoxContainer"]
+margin_top = 100.0
+margin_right = 223.0
+margin_bottom = 104.0
+
+[node name="Choices" type="HBoxContainer" parent="MarginContainer/CenterContainer/VBoxContainer"]
+margin_top = 108.0
+margin_right = 223.0
+margin_bottom = 134.0
+custom_constants/separation = 30
+alignment = 1
+
+[node name="Accept" type="Button" parent="MarginContainer/CenterContainer/VBoxContainer/Choices"]
+margin_left = 25.0
+margin_right = 100.0
+margin_bottom = 26.0
+theme = ExtResource( 5 )
+custom_styles/normal = SubResource( 1 )
+text = "Accept"
+
+[node name="Reject" type="Button" parent="MarginContainer/CenterContainer/VBoxContainer/Choices"]
+margin_left = 130.0
+margin_right = 198.0
+margin_bottom = 26.0
+theme = ExtResource( 5 )
+custom_styles/normal = SubResource( 2 )
+text = "Reject"
+
+[connection signal="pressed" from="MarginContainer/CenterContainer/VBoxContainer/Choices/Accept" to="." method="_on_Accept_pressed"]
+[connection signal="pressed" from="MarginContainer/CenterContainer/VBoxContainer/Choices/Reject" to="." method="_on_Reject_pressed"]
