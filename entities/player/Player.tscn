@@ -6,9 +6,8 @@
 [ext_resource path="res://handlers/MovementHandler.tscn" type="PackedScene" id=4]
 [ext_resource path="res://entities/player/Pivot.gd" type="Script" id=5]
 
-[sub_resource type="CapsuleShape2D" id=1]
-radius = 8.0
-height = 14.0
+[sub_resource type="RectangleShape2D" id=3]
+extents = Vector2( 16, 24 )
 
 [sub_resource type="ParticlesMaterial" id=2]
 emission_shape = 1
@@ -33,7 +32,7 @@ script = ExtResource( 1 )
 invincible = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource( 1 )
+shape = SubResource( 3 )
 
 [node name="Sprite" parent="." instance=ExtResource( 3 )]
 
