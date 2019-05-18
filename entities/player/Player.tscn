@@ -2,7 +2,7 @@
 
 [ext_resource path="res://entities/player/Player.gd" type="Script" id=1]
 [ext_resource path="res://systems/health/Health.tscn" type="PackedScene" id=2]
-[ext_resource path="res://entities/player/Graphics.tscn" type="PackedScene" id=3]
+[ext_resource path="res://entities/player/PlaceholderGraphics.tscn" type="PackedScene" id=3]
 [ext_resource path="res://handlers/MovementHandler.tscn" type="PackedScene" id=4]
 [ext_resource path="res://entities/player/Pivot.gd" type="Script" id=5]
 
