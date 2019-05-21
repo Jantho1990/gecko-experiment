@@ -52,8 +52,11 @@ func _ready():
 	EventBus.dispatch(name + "_loaded", {
 		"node": self
 	})
-
+var first = true
 func _physics_process(delta):
+	if first:
+		print("BASE")
+		first = false
 	if $Health.current == 0:
 		die()
 	

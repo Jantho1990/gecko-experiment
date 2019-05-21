@@ -15,6 +15,9 @@ func _ready():
 	print("I'm a gecko.")
 
 func _physics_process(delta):
+	if first:
+		print("GECKO")
+		first = false
 	should_grip = false
 	if Input.is_action_just_pressed("ui_grip"):
 		if not currently_gripping:
@@ -43,9 +46,10 @@ func _physics_process(delta):
 				"right": funcref(self, "grip_move_right"),
 				"up": funcref(self, "grip_move_up")
 			})
-#	else:
+	else:
 #		print("Is on wall? ", is_on_wall())
-#		currently_gripping = false
+		currently_gripping = false
+		print("GRIP RELEASED")
 	if currently_gripping:
 		if Input.is_action_pressed("ui_down"):
 			$MovementHandler.down()
@@ -56,13 +60,22 @@ func _physics_process(delta):
 	
 	if not currently_gripping:
 		print("FFFF")
+		print("RELEASE")
+		if grip_direction != Vector2(0, 0):
+			grip_direction = Vector2(0, 0)
+		gravity_enabled = true
+		$MovementHandler.clear_overrides()
+		print("aw shucks")
 
-#func apply_motion():
-#	if not currently_gripping:
-#		.apply_motion()
-#	else:
-##		motion.y = 0
-#		motion = move_and_slide(motion, UP)
+func apply_motion():
+	if not currently_gripping:
+		.apply_motion()
+	else:
+#		motion.y = 0
+		# apply a smidgen of force to trigger is_on_whatever calculations
+		motion += 7.015 * grip_direction # I have no idea why 7.015 is the minimum needed force for this to work, I just trial-and-error'd it.
+		print(motion, " " , grip_direction, " ", is_on_ceiling())
+		motion = move_and_slide(motion, UP)
 
 func calculate_grip_direction(wall_normal):
 	print("Wall Normal ", wall_normal, "Grip Direction", grip_direction)
