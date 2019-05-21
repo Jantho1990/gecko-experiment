@@ -59,14 +59,14 @@ func _physics_process(delta):
 	
 	if is_dead:
 		# We still want to allow gravity so the player doesn't hang in mid-air while they die
-		motion.y += GRAVITY
+		apply_gravity()
 		if is_on_floor():
 			motion.x = 0
 		motion = move_and_slide(motion, UP)
 		return
 	
 	if !is_flying:
-		motion.y += GRAVITY
+		apply_gravity()
 	
 	var friction = false
 	
@@ -118,6 +118,11 @@ func _physics_process(delta):
 func apply_motion():
 	motion = move_and_slide(motion, UP, true) # true should be stopping the slide, but it isn't for some reason, debug this later	
 
+# Apply the force of gravity.
+func apply_gravity():
+	if gravity_enabled:
+		motion.y += GRAVITY
+
 func die():
 	if not is_dead:
 		is_dead = true
@@ -157,6 +162,7 @@ func _on_Immobile_timer_end():
 	remove_child(immobile_timer)
 
 func move_down():
+	print("down")
 	pass
 
 func move_idle():
