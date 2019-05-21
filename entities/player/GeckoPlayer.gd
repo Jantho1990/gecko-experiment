@@ -44,19 +44,17 @@ func _physics_process(delta):
 				"right": funcref(self, "grip_move_right"),
 				"up": funcref(self, "grip_move_up")
 			})
-		else:
-			print("bummer")
 	else:
 		currently_gripping = false
 		
 		
 
-func apply_motion():
-	if not currently_gripping:
-		.apply_motion()
-	else:
-#		motion.y = 0
-		motion = move_and_slide(motion, UP)
+#func apply_motion():
+#	if not currently_gripping:
+#		.apply_motion()
+#	else:
+##		motion.y = 0
+#		motion = move_and_slide(motion, UP)
 
 func calculate_grip_direction(wall_normal):
 	grip_direction -= wall_normal
@@ -71,17 +69,18 @@ func grip_move_idle():
 
 func grip_move_left():
 	print('grip left')
+	direction.x = -1	
 	if grip_direction.x + direction.x == 0:
 		print("aw geez")
 		return
 	
 	motion.x = max(motion.x - ACCELERATION, -MAX_SPEED)
 #	dir_x = -1
-	direction.x = -1
 	playAnim('run', -1, 1.6)
 
 func grip_move_right():
 	print('grip right')
+	direction.x = 1	
 	if grip_direction.x + direction.x == 0:
 		print("aw geez")
 		return
@@ -89,8 +88,8 @@ func grip_move_right():
 	motion.x += ACCELERATION
 	motion.x = min(motion.x + ACCELERATION, MAX_SPEED)
 #	dir_x = 1
-	direction.x = 1
 	playAnim('run', -1, 1.6)
+	print("no no no")
 
 func grip_move_up():
 	print('grip up')

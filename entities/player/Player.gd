@@ -169,6 +169,7 @@ func move_idle():
 	pass
 
 func move_left():
+	print("left")
 	motion.x = max(motion.x - ACCELERATION, -MAX_SPEED)
 	$Sprite.flip_h = true
 #	dir_x = -1
@@ -176,6 +177,7 @@ func move_left():
 	playAnim('run', -1, 1.6)
 
 func move_right():
+	print("right")
 	motion.x += ACCELERATION
 	motion.x = min(motion.x + ACCELERATION, MAX_SPEED)
 	$Sprite.flip_h = false
