@@ -20,9 +20,14 @@ func _physics_process(delta):
 		if not currently_gripping:
 			print("Grip!")
 			should_grip = true
-			breakpoint
 		else:
 			currently_gripping = false
+			print("RELEASE")
+			if not grip_direction == Vector2(0, 0):
+				calculate_grip_direction(Vector2(0, 0))
+			gravity_enabled = true
+			$MovementHandler.clear_overrides()
+			print("aw shucks")
 			
 		
 	if is_on_wall() or is_on_ceiling():
@@ -39,13 +44,11 @@ func _physics_process(delta):
 				"right": funcref(self, "grip_move_right"),
 				"up": funcref(self, "grip_move_up")
 			})
+		else:
+			print("bummer")
 	else:
 		currently_gripping = false
-		if not grip_direction == Vector2(0, 0):
-			calculate_grip_direction(Vector2(0, 0))
-		gravity_enabled = true
-		$MovementHandler.clear_overrides()
-		print("aw shucks")
+		
 		
 
 func apply_motion():
