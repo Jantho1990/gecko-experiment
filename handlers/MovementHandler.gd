@@ -6,6 +6,7 @@ extends Node
 var disable_movement = false setget _private_set,_private_get
 
 # External variable to determine whether handler is allowed to move.
+#warning-ignore:unused_class_variable
 var frozen setget _private_set,_get_frozen
 func _get_frozen():
 	return disable_movement
@@ -33,6 +34,7 @@ var override_movement = {
 }
 
 # Functions stored here run before the current movement
+#warning-ignore:unused_class_variable
 var before_movement = {
 	"down": null,
 	"idle": null,
@@ -42,6 +44,7 @@ var before_movement = {
 }
 
 # Functions stored here run after the current movement
+#warning-ignore:unused_class_variable
 var after_movement = {
 	"down": null,
 	"idle": null,
@@ -89,22 +92,27 @@ func move(direction):
 
 func down():
 	if not disable_movement:
+		#warning-ignore:standalone_expression
 		default_movement['down'].call_func() if override_movement['down'] == null else override_movement['down'].call_func()
 
 func idle():
 	if not disable_movement:
+		#warning-ignore:standalone_expression
 		default_movement['idle'].call_func() if override_movement['idle'] == null else override_movement['idle'].call_func()
 
 func left():
 	if not disable_movement:
+		#warning-ignore:standalone_expression
 		default_movement['left'].call_func() if override_movement['left'] == null else override_movement['left'].call_func()
 
 func right():
 	if not disable_movement:
+		#warning-ignore:standalone_expression
 		default_movement['right'].call_func() if override_movement['right'] == null else override_movement['right'].call_func()
 
 func up():
 	if not disable_movement:
+		#warning-ignore:standalone_expression
 		default_movement['up'].call_func() if override_movement['up'] == null else override_movement['up'].call_func()
 
 ###

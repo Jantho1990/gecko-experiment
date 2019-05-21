@@ -18,26 +18,22 @@ var jump_forgiveness_time = 0
 var is_falling = false
 var current_jump_height = 0
 var is_jumping = false
-var jump_scale_time = 0
+#var jump_scale_time = 0
 
 var dir_x = 1 setget ,get_dir_x
 var direction = Vector2(1, 0)
-var width setget ,width
-var height setget ,height
+
+#warning-ignore:unused_class_variable
+var width setget ,get_width
+#warning-ignore:unused_class_variable
+var height setget ,get_height
 
 var motion = Vector2()
-var motionHandler = {
-	"down": "moveDown",
-	"left": "moveLeft",
-	"right": "moveRight",
-	"up": "moveUp"
-}
 
 # Hold timer when character is not allowed to move.
 var immobile_timer
 
 onready var health = $Health
-onready var spellCaster = $SanityCaster
 
 func _ready():
 	$MovementHandler.set_defaults({
@@ -142,7 +138,7 @@ func die():
 func get_dir_x():
 	return dir_x
 
-func height():
+func get_height():
 	return $CollisionShape2D.shape.height
 
 func hit(damage, source = null):
@@ -155,6 +151,7 @@ func hit(damage, source = null):
 	motion.y = -200
 	motion.x = 400 * sign(source.direction.x if source != null else 0)
 	$SanitySplatter.emitting = true
+	#warning-ignore:return_value_discarded
 	move_and_slide(motion, UP)
 	add_child(immobile_timer)
 	print("freeze")
@@ -194,7 +191,7 @@ func jump():
 	if not is_jumping:
 		is_jumping = true
 	if current_jump_height > JUMP_HEIGHT and motion.y != JUMP_HEIGHT:
-		current_jump_height += (JUMP_HEIGHT / 10)
+		current_jump_height += (JUMP_HEIGHT / 10.00)
 	else:
 		current_jump_height = JUMP_HEIGHT
 		is_jumping = false
@@ -215,7 +212,7 @@ func playAnim(anim, custom_blend = -1, custom_speed = 1.0):
 		$Sprite/AnimationPlayer.play(anim, custom_blend, custom_speed)
 
 func set_health(amount):
-	$Health.set_health(amount)
+	health.set_health(amount)
 
 func spawn_acceptable(tilemap, pos):
 	var cell = tilemap.world_to_map(pos)
@@ -234,5 +231,5 @@ func spawn_acceptable(tilemap, pos):
 			return true
 	return false
 
-func width():
+func get_width():
 	return $CollisionShape2D.shape.radius * 2

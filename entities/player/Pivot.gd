@@ -7,6 +7,7 @@ func _ready():
 	update_pivot_angle()
 	pass # Replace with function body.
 
+#warning-ignore:unused_argument
 func _physics_process(delta):
 	update_pivot_angle()
 
