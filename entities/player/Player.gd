@@ -1,7 +1,7 @@
 extends KinematicBody2D
 
 const UP = Vector2(0, -1)
-const GRAVITY = 20
+const GRAVITY = 20 * -UP.y
 const ACCELERATION = 50
 const MAX_SPEED = 200
 const JUMP_HEIGHT = -550
@@ -12,6 +12,9 @@ const HEALTH_START = HEALTH_MAX
 # Should this be an export?
 var is_flying = false
 var is_dead = false
+
+# Controls whether gravity is enabled or not.
+var gravity_enabled = true
 
 # Jump logic
 var jump_forgiveness_time = 0
@@ -51,7 +54,6 @@ func _ready():
 	})
 
 func _physics_process(delta):
-#	$SanityCaster.mana_current = $Health.current	
 	if $Health.current == 0:
 		die()
 	
@@ -110,8 +112,11 @@ func _physics_process(delta):
 		if friction == true:
 			motion.x = lerp(motion.x, 0, 0.05)
 	
-	# Final movement integration
-	motion = move_and_slide(motion, UP)
+	apply_motion()
+
+# Final movement integration
+func apply_motion():
+	motion = move_and_slide(motion, UP, true) # true should be stopping the slide, but it isn't for some reason, debug this later	
 
 func die():
 	if not is_dead:
