@@ -110,17 +110,8 @@ func _physics_process(delta):
 		if friction == true:
 			motion.x = lerp(motion.x, 0, 0.05)
 	
-	# Action/Spellcasting
-	if Input.is_action_just_pressed('cast'):
-		print("no casting for now")
-#		spellCaster.cast()
-	
 	# Final movement integration
 	motion = move_and_slide(motion, UP)
-
-func on_WorldMap_loaded(data):
-	var world_map = data.node
-	world_map.active_map.random_spawn(self)
 
 func die():
 	if not is_dead:
@@ -142,7 +133,6 @@ func get_height():
 	return $CollisionShape2D.shape.height
 
 func hit(damage, source = null):
-#	$SanityCaster.drain_sanity(damage)
 	print("HIT DAMAGE:", damage, " FROM ", source)
 	$MovementHandler.freeze()
 	immobile_timer = Timer.new()
@@ -151,8 +141,7 @@ func hit(damage, source = null):
 	motion.y = -200
 	motion.x = 400 * sign(source.direction.x if source != null else 0)
 	$SanitySplatter.emitting = true
-	#warning-ignore:return_value_discarded
-	move_and_slide(motion, UP)
+	motion = move_and_slide(motion, UP)
 	add_child(immobile_timer)
 	print("freeze")
 
