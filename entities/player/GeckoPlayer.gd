@@ -23,8 +23,7 @@ func _physics_process(delta):
 		else:
 			currently_gripping = false
 			print("RELEASE")
-			if not grip_direction == Vector2(0, 0):
-				calculate_grip_direction(Vector2(0, 0))
+			grip_direction = Vector2(0, 0)
 			gravity_enabled = true
 			$MovementHandler.clear_overrides()
 			print("aw shucks")
@@ -44,10 +43,19 @@ func _physics_process(delta):
 				"right": funcref(self, "grip_move_right"),
 				"up": funcref(self, "grip_move_up")
 			})
-	else:
-		currently_gripping = false
-		
-		
+#	else:
+#		print("Is on wall? ", is_on_wall())
+#		currently_gripping = false
+	if currently_gripping:
+		if Input.is_action_pressed("ui_down"):
+			$MovementHandler.down()
+		elif Input.is_action_pressed("ui_up"):
+			$MovementHandler.up()
+		else:
+			$MovementHandler.idle()
+	
+	if not currently_gripping:
+		print("FFFF")
 
 #func apply_motion():
 #	if not currently_gripping:
@@ -57,19 +65,24 @@ func _physics_process(delta):
 #		motion = move_and_slide(motion, UP)
 
 func calculate_grip_direction(wall_normal):
+	print("Wall Normal ", wall_normal, "Grip Direction", grip_direction)
 	grip_direction -= wall_normal
 #	breakpoint
 
 func grip_move_down():
 	print('grip down')
+	direction.y = 1
 	motion.y = min(motion.y + ACCELERATION, MAX_SPEED)
 
 func grip_move_idle():
-	pass
+	if motion.y > 0:
+		motion.y = max(motion.y - ACCELERATION, 0)
+	elif motion.y < 0:
+		motion.y = min(motion.y + ACCELERATION, 0)
 
 func grip_move_left():
 	print('grip left')
-	direction.x = -1	
+	direction.x = -1
 	if grip_direction.x + direction.x == 0:
 		print("aw geez")
 		return
@@ -80,7 +93,7 @@ func grip_move_left():
 
 func grip_move_right():
 	print('grip right')
-	direction.x = 1	
+	direction.x = 1
 	if grip_direction.x + direction.x == 0:
 		print("aw geez")
 		return
@@ -93,6 +106,7 @@ func grip_move_right():
 
 func grip_move_up():
 	print('grip up')
+	direction.y = -1
 	motion.y = max(motion.y - ACCELERATION, -MAX_SPEED)
 
 func get_height():
