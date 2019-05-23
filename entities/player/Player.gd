@@ -52,11 +52,8 @@ func _ready():
 	EventBus.dispatch(name + "_loaded", {
 		"node": self
 	})
-var first = true
+
 func _physics_process(delta):
-	if first:
-		print("BASE")
-		first = false
 	if $Health.current == 0:
 		die()
 	
@@ -165,14 +162,12 @@ func _on_Immobile_timer_end():
 	remove_child(immobile_timer)
 
 func move_down():
-	print("down")
 	pass
 
 func move_idle():
 	pass
 
 func move_left():
-	print("left")
 	motion.x = max(motion.x - ACCELERATION, -MAX_SPEED)
 	$Sprite.flip_h = true
 #	dir_x = -1
@@ -180,7 +175,6 @@ func move_left():
 	playAnim('run', -1, 1.6)
 
 func move_right():
-	print("right")
 	motion.x += ACCELERATION
 	motion.x = min(motion.x + ACCELERATION, MAX_SPEED)
 	$Sprite.flip_h = false

@@ -10,31 +10,20 @@ var should_grip = false
 # Which side of the entity is doing the gripping.
 var grip_direction = Vector2(0, 0)
 
-func _ready():
-	._ready()
-	print("I'm a gecko.")
-
 func _physics_process(delta):
-	if first:
-		print("GECKO")
-		first = false
 	should_grip = false
 	if Input.is_action_just_pressed("ui_grip"):
 		if not currently_gripping:
-			print("Grip!")
 			should_grip = true
 		else:
 			currently_gripping = false
-			print("RELEASE")
 			grip_direction = Vector2(0, 0)
 			gravity_enabled = true
 			$MovementHandler.clear_overrides()
-			print("aw shucks")
 			
 		
 	if is_on_wall() or is_on_ceiling():
 		if should_grip and not currently_gripping:
-			print("HIT")
 			motion.y = 0
 			currently_gripping = true
 			calculate_grip_direction(get_slide_collision(0).normal)
@@ -47,9 +36,8 @@ func _physics_process(delta):
 				"up": funcref(self, "grip_move_up")
 			})
 	else:
-#		print("Is on wall? ", is_on_wall())
 		currently_gripping = false
-		print("GRIP RELEASED")
+	
 	if currently_gripping:
 		if Input.is_action_pressed("ui_down"):
 			$MovementHandler.down()
@@ -59,13 +47,10 @@ func _physics_process(delta):
 			$MovementHandler.idle()
 	
 	if not currently_gripping:
-		print("FFFF")
-		print("RELEASE")
 		if grip_direction != Vector2(0, 0):
 			grip_direction = Vector2(0, 0)
 		gravity_enabled = true
 		$MovementHandler.clear_overrides()
-		print("aw shucks")
 
 func apply_motion():
 	if not currently_gripping:
@@ -74,16 +59,12 @@ func apply_motion():
 #		motion.y = 0
 		# apply a smidgen of force to trigger is_on_whatever calculations
 		motion += 7.015 * grip_direction # I have no idea why 7.015 is the minimum needed force for this to work, I just trial-and-error'd it.
-		print(motion, " " , grip_direction, " ", is_on_ceiling())
 		motion = move_and_slide(motion, UP)
 
-func calculate_grip_direction(wall_normal):
-	print("Wall Normal ", wall_normal, "Grip Direction", grip_direction)
+func calculate_grip_direction(wall_normal): # Translate the wall_normal into grip direction, which matches our regular direction's convention.
 	grip_direction -= wall_normal
-#	breakpoint
 
 func grip_move_down():
-	print('grip down')
 	direction.y = 1
 	motion.y = min(motion.y + ACCELERATION, MAX_SPEED)
 
@@ -94,10 +75,8 @@ func grip_move_idle():
 		motion.y = min(motion.y + ACCELERATION, 0)
 
 func grip_move_left():
-	print('grip left')
 	direction.x = -1
 	if grip_direction.x + direction.x == 0:
-		print("aw geez")
 		return
 	
 	motion.x = max(motion.x - ACCELERATION, -MAX_SPEED)
@@ -105,20 +84,16 @@ func grip_move_left():
 	playAnim('run', -1, 1.6)
 
 func grip_move_right():
-	print('grip right')
 	direction.x = 1
 	if grip_direction.x + direction.x == 0:
-		print("aw geez")
 		return
 	
 	motion.x += ACCELERATION
 	motion.x = min(motion.x + ACCELERATION, MAX_SPEED)
 #	dir_x = 1
 	playAnim('run', -1, 1.6)
-	print("no no no")
 
 func grip_move_up():
-	print('grip up')
 	direction.y = -1
 	motion.y = max(motion.y - ACCELERATION, -MAX_SPEED)
 
