@@ -10,15 +10,16 @@ const HEALTH_MAX = 10
 const HEALTH_START = HEALTH_MAX
 
 # Flags
-export(bool) var dead = false # Is player dead.
-export(bool) var flying = false # Is player flying.
-export(bool) var gravity = true # Is gravity acting on player.
+export(bool) var dead = false # Is player dead?
+export(bool) var flying = false # Is player flying?
+export(bool) var gravity = true # Is gravity acting on player?
+export(bool) var controllable = true # Can the player control the entity?
+export(bool) var jumping = false # Is the player currently jumping?
+export(bool) var falling = false # Is the player currently falling?
 
 # Jump logic
 var jump_forgiveness_time = 0
-var is_falling = false
 var current_jump_height = 0
-var is_jumping = false
 #var jump_scale_time = 0
 
 var dir_x = 1 setget ,get_dir_x
@@ -96,7 +97,7 @@ func _physics_process(delta):
 		else:
 			$MovementHandler.idle()
 	else:
-		if is_jumping and \
+		if jumping and \
 			current_jump_height != JUMP_HEIGHT and \
 			Input.is_action_pressed('ui_up'):
 				$MovementHandler.up()
@@ -185,13 +186,13 @@ func move_up():
 	jump()
 
 func jump():
-	if not is_jumping:
-		is_jumping = true
+	if not jumping:
+		jumping = true
 	if current_jump_height > JUMP_HEIGHT and motion.y != JUMP_HEIGHT:
 		current_jump_height += (JUMP_HEIGHT / 10.00)
 	else:
 		current_jump_height = JUMP_HEIGHT
-		is_jumping = false
+		jumping = false
 	motion.y = current_jump_height
 #	print("jumping", current_jump_height)
 
@@ -201,8 +202,8 @@ func jump_forgiveness(delta):
 	else:
 		jump_forgiveness_time -= delta
 		if jump_forgiveness_time <= 0:
-			is_falling = true
-			is_jumping = false
+			falling = true
+			jumping = false
 
 func playAnim(anim, custom_blend = -1, custom_speed = 1.0):
 	if $Sprite/AnimationPlayer.current_animation != anim || !$Sprite/AnimationPlayer.is_playing():
