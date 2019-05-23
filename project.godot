@@ -25,6 +25,7 @@ config/icon="res://icon.png"
 
 [autoload]
 
+CONSTANTS="*res://scripts/CONSTANTS.gd"
 global="*res://scripts/global.gd"
 EventBus="*res://scripts/EventBus.gd"
 DataStore="*res://scripts/DataStore.gd"

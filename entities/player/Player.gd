@@ -1,7 +1,7 @@
 extends KinematicBody2D
 
-const UP = Vector2(0, -1)
-const GRAVITY = 20 * -UP.y
+const UP = CONSTANTS.UP
+const GRAVITY = CONSTANTS.GRAVITY * -UP.y
 const ACCELERATION = 50
 const MAX_SPEED = 200
 const JUMP_HEIGHT = -550
@@ -9,12 +9,10 @@ const JUMP_FORGIVENESS = 0.08
 const HEALTH_MAX = 10
 const HEALTH_START = HEALTH_MAX
 
-# Should this be an export?
-var is_flying = false
-var is_dead = false
-
-# Controls whether gravity is enabled or not.
-var gravity_enabled = true
+# Flags
+export(bool) var dead = false # Is player dead.
+export(bool) var flying = false # Is player flying.
+export(bool) var gravity = true # Is gravity acting on player.
 
 # Jump logic
 var jump_forgiveness_time = 0
@@ -57,7 +55,7 @@ func _physics_process(delta):
 	if $Health.current == 0:
 		die()
 	
-	if is_dead:
+	if dead:
 		# We still want to allow gravity so the player doesn't hang in mid-air while they die
 		apply_gravity()
 		if is_on_floor():
@@ -65,7 +63,7 @@ func _physics_process(delta):
 		motion = move_and_slide(motion, UP)
 		return
 	
-	if !is_flying:
+	if not flying:
 		apply_gravity()
 	
 	var friction = false
@@ -89,7 +87,7 @@ func _physics_process(delta):
 			current_jump_height = 0
 		if friction == true:
 			motion.x = lerp(motion.x, 0, 0.2)
-	elif is_flying:
+	elif flying:
 		playAnim('flying')
 		if Input.is_action_pressed("ui_up"):
 			$MovementHandler.up()
@@ -120,12 +118,12 @@ func apply_motion():
 
 # Apply the force of gravity.
 func apply_gravity():
-	if gravity_enabled:
+	if gravity:
 		motion.y += GRAVITY
 
 func die():
-	if not is_dead:
-		is_dead = true
+	if not dead:
+		dead = true
 #		$Sounds/Scream.play()
 		print("dead")
 		playAnim("die")

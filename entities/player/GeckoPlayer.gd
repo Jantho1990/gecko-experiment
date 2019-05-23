@@ -35,7 +35,7 @@ func _physics_process(delta):
 		else:
 			currently_gripping = false
 			grip_direction = Vector2(0, 0)
-			gravity_enabled = true
+			gravity = true
 			$MovementHandler.clear_overrides()
 			
 		
@@ -44,7 +44,7 @@ func _physics_process(delta):
 			motion.y = 0
 			currently_gripping = true
 			calculate_grip_direction(get_slide_collision(0).normal)
-			gravity_enabled = false
+			gravity = false
 			$MovementHandler.set_overrides(movement_overrides)
 	else:
 		currently_gripping = false
@@ -60,7 +60,7 @@ func _physics_process(delta):
 	if not currently_gripping:
 		if grip_direction != Vector2(0, 0):
 			grip_direction = Vector2(0, 0)
-		gravity_enabled = true
+		gravity = true
 		$MovementHandler.clear_overrides()
 
 func apply_motion():
