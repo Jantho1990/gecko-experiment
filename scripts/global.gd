@@ -7,3 +7,12 @@ func _process(delta):
 	
 func get_run_time():
 	return run_time
+
+func no_action_pressed():
+	var actions = InputMap.get_actions()
+	
+	for action in actions:
+		if Input.is_action_pressed(action):
+			return false
+	
+	return true

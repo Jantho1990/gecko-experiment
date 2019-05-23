@@ -70,20 +70,30 @@ func apply_motion():
 #		motion.y = 0
 		# apply a smidgen of force to trigger is_on_whatever calculations
 		motion += 7.015 * grip_direction # I have no idea why 7.015 is the minimum needed force for this to work, I just trial-and-error'd it.
+		print("pre slide ", motion)
 		motion = move_and_slide(motion, UP)
+		print(motion)
 
 func calculate_grip_direction(wall_normal): # Translate the wall_normal into grip direction, which matches our regular direction's convention.
 	grip_direction -= wall_normal
 
 func grip_move_down():
+	print("grip down")
 	direction.y = 1
 	motion.y = min(motion.y + ACCELERATION, MAX_SPEED)
+	print("pre motion ", motion)
 
 func grip_move_idle():
+	print("grip idle")
+	friction = true
 	if motion.y > 0:
 		motion.y = max(motion.y - ACCELERATION, 0)
 	elif motion.y < 0:
 		motion.y = min(motion.y + ACCELERATION, 0)
+	
+	# We already have horizontal friction handling in base move_idle,
+	# so let's steal it.
+	.move_idle()
 
 func grip_move_left():
 	direction.x = -1
