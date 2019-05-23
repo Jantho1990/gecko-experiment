@@ -10,6 +10,23 @@ var should_grip = false
 # Which side of the entity is doing the gripping.
 var grip_direction = Vector2(0, 0)
 
+var movement_overrides setget _set_private,_get_private 
+
+func _set_private(_throwaway_):
+	print("Setting not allowed.")
+
+func _get_private():
+	print("Getting not allowed.")
+
+func _ready():
+	movement_overrides = {
+		"down": funcref(self, "grip_move_down"),
+		"idle": funcref(self, "grip_move_idle"),
+		"left": funcref(self, "grip_move_left"),
+		"right": funcref(self, "grip_move_right"),
+		"up": funcref(self, "grip_move_up")
+	}
+
 func _physics_process(delta):
 	should_grip = false
 	if Input.is_action_just_pressed("ui_grip"):
@@ -28,13 +45,7 @@ func _physics_process(delta):
 			currently_gripping = true
 			calculate_grip_direction(get_slide_collision(0).normal)
 			gravity_enabled = false
-			$MovementHandler.set_overrides({
-				"down": funcref(self, "grip_move_down"),
-				"idle": funcref(self, "grip_move_idle"),
-				"left": funcref(self, "grip_move_left"),
-				"right": funcref(self, "grip_move_right"),
-				"up": funcref(self, "grip_move_up")
-			})
+			$MovementHandler.set_overrides(movement_overrides)
 	else:
 		currently_gripping = false
 	
