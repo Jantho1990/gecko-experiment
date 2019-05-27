@@ -7,7 +7,7 @@ extends "res://entities/player/Player.gd"
 var grip_pressed = false
 var grip_active = false
 var gripping_surface = false
-var grip_range = 55 # How close entity needs to be in order to initiate grip, in pixels.
+var grip_range = 15 # How close entity needs to be in order to initiate grip, in pixels.
 
 var grip_vectors = null
 
@@ -54,14 +54,14 @@ func calculate_grip_vectors(pos):
 	# of the entity, which will be used to perform
 	# eight raycasts.
 	grip_vectors = [
-		Vector2(grip_range, 0),
-		Vector2(-grip_range, 0),
-		Vector2(0, grip_range),
-		Vector2(0, -grip_range),
-		Vector2(grip_range, grip_range).normalized() * grip_range,
-		Vector2(-grip_range, grip_range).normalized() * grip_range,
-		Vector2(grip_range, -grip_range).normalized() * grip_range,
-		Vector2(-grip_range, -grip_range).normalized() * grip_range
+		Vector2(grip_range + get_half_width(), 0),
+		Vector2(-grip_range - get_half_width(), 0),
+		Vector2(0, grip_range + get_half_height()),
+		Vector2(0, -grip_range - get_half_height()),
+		Vector2(grip_range, grip_range).normalized() * grip_range + Vector2(get_half_width(), get_half_height()),
+		Vector2(-grip_range, grip_range).normalized() * grip_range + Vector2(-get_half_width(), get_half_height()),
+		Vector2(grip_range, -grip_range).normalized() * grip_range + Vector2(get_half_width(), -get_half_height()),
+		Vector2(-grip_range, -grip_range).normalized() * grip_range + Vector2(-get_half_width(), -get_half_height())
 	]
 	
 	# The world around the entity.
@@ -69,7 +69,7 @@ func calculate_grip_vectors(pos):
 	
 	var ret = []
 	for grip_vector in grip_vectors:
-		var result = space_state.intersect_ray(global_position, grip_vector, [self])
+		var result = space_state.intersect_ray(position, grip_vector, [self])
 		ret.push_back(result)
 	
 	return ret
@@ -125,7 +125,13 @@ func grip_move_up():
 	motion.y = max(motion.y - ACCELERATION, -MAX_SPEED)
 
 func get_height():
-	return $CollisionShape2D.shape.height
+	return $CollisionShape2D.shape.extents.y * 2
+
+func get_half_height():
+	return $CollisionShape2D.shape.extents.y
 
 func get_width():
-	return $CollisionShape2D.shape.width
+	return $CollisionShape2D.shape.extents.x * 2
+
+func get_half_width():
+	return $CollisionShape2D.shape.extents.x
