@@ -4,14 +4,12 @@ extends "res://entities/player/Player.gd"
 # Controls whether the player is currently gripping a wall or ceiling
 # and if they should be doing that.
 ###
-var currently_gripping = false
-var should_grip = false
+var grip_pressed = false
+var grip_active = false
+var gripping_surface = false
+var grip_range = 55 # How close entity needs to be in order to initiate grip, in pixels.
 
-# If true, entity is transferring from wall to ceiling,
-# or vice versa.
-var grip_transfer_in_progress = false
-var in_corner = false
-var grip_transfer_rotation_angle = 0
+var grip_vectors = null
 
 # Which side of the entity is doing the gripping.
 var grip_direction = Vector2(0, 0)
@@ -34,66 +32,56 @@ func _ready():
 	}
 
 func _physics_process(delta):
-	print(motion.y)
-	should_grip = false
 	if Input.is_action_pressed("ui_grip"):
-		if not currently_gripping:
-			should_grip = true
-		else:
-			currently_gripping = false
-			grip_direction = Vector2(0, 0)
-			gravity = true
-			$MovementHandler.clear_overrides()
-	
-	if grip_transfer_in_progress:
-#		rotate_to_ceiling()
-		pass
-	
-	if is_on_wall() and is_on_ceiling():
-		if not in_corner:
-			grip_transfer_in_progress = true
-			in_corner = true
-		else:
-			print("Still in corner.")
-	elif is_on_wall() or is_on_ceiling():
-		in_corner = false
-		if should_grip and not currently_gripping:
-			motion.y = 0
-			currently_gripping = true
-			calculate_grip_direction(get_slide_collision(0).normal)
-			gravity = false
-			$MovementHandler.set_overrides(movement_overrides)
+		grip_pressed = true
+		var near_grippable_surface = scan_for_grippable_surface()
 	else:
-		in_corner = false
-		currently_gripping = false
+		grip_pressed = false
+	update()
 	
-	if currently_gripping:
-		print("gripping...", grip_direction)
-		if Input.is_action_pressed("ui_down"):
-			$MovementHandler.down()
-		elif Input.is_action_pressed("ui_up"):
-			$MovementHandler.up()
-		else:
-			$MovementHandler.idle()
+
+
+###
+# Other Methods
+###
+
+func scan_for_grippable_surface():
+	var grips = calculate_grip_vectors(position)
+	print(grips)
+
+func calculate_grip_vectors(pos):
+	# An array of vectors representing the eight sides
+	# of the entity, which will be used to perform
+	# eight raycasts.
+	grip_vectors = [
+		Vector2(grip_range, 0),
+		Vector2(-grip_range, 0),
+		Vector2(0, grip_range),
+		Vector2(0, -grip_range),
+		Vector2(grip_range, grip_range).normalized() * grip_range,
+		Vector2(-grip_range, grip_range).normalized() * grip_range,
+		Vector2(grip_range, -grip_range).normalized() * grip_range,
+		Vector2(-grip_range, -grip_range).normalized() * grip_range
+	]
 	
-	if not currently_gripping:
-		if grip_direction != Vector2(0, 0):
-			grip_direction = Vector2(0, 0)
-		gravity = true
-		$MovementHandler.clear_overrides()
+	# The world around the entity.
+	var space_state = get_world_2d().direct_space_state
+	
+	var ret = []
+	for grip_vector in grip_vectors:
+		var result = space_state.intersect_ray(global_position, grip_vector, [self])
+		ret.push_back(result)
+	
+	return ret
 
-func apply_motion():
-	if not currently_gripping:
-		.apply_motion()
-	else:
-		# apply a smidgen of force to trigger is_on_whatever calculations
-		motion += 527.015 * grip_direction # I have no idea why 7.015 is the minimum needed force for this to work, I just trial-and-error'd it.
-		print("premotion", motion, grip_direction)
-		motion = move_and_slide(motion, UP)
-		print(motion, grip_direction)
-
-func calculate_grip_direction(wall_normal): # Translate the wall_normal into grip direction, which matches our regular direction's convention.
-	grip_direction -= wall_normal
+# debug only
+func _draw():
+	if grip_vectors != null:
+		for grip_vector in grip_vectors:
+			if grip_pressed:
+				print("Position: ", position, ", Global Position: ", global_position, ", Grip Vector: ", grip_vector)
+#			draw_circle(Vector2(0, 0), 50, Color(1, 1, 1))
+			draw_line(Vector2(0, 0), grip_vector, Color(1, 0, 0), 1)
 
 func grip_move_down():
 	direction.y = 1
@@ -141,22 +129,3 @@ func get_height():
 
 func get_width():
 	return $CollisionShape2D.shape.width
-
-func in_midair(delta):
-	.in_midair(delta)
-	if not in_corner and abs(rotation_degrees) > 0:
-		rotation_degrees += sign(rotation_degrees) * lerp(rotation_degrees, 0, 0.5)
-
-func rotate_to_ceiling():
-	currently_gripping = true # Force this to stay true, since the rotation will throw it off.
-	var dir = direction.x
-	grip_transfer_rotation_angle += 5 * -dir
-	rotation_degrees = grip_transfer_rotation_angle
-	motion.y -= 500
-	print("Rotation: ", grip_transfer_rotation_angle, " ", dir)
-	if abs(grip_transfer_rotation_angle) >= 90:
-		print("sHOT")
-		grip_transfer_in_progress = false
-		grip_transfer_rotation_angle = 0
-		if not is_on_ceiling():
-			position.y -= 500
