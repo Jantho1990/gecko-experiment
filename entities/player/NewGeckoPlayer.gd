@@ -53,6 +53,9 @@ func calculate_grip_vectors(pos):
 	# An array of vectors representing the eight sides
 	# of the entity, which will be used to perform
 	# eight raycasts.
+	# Adding half-dimensions accounts for the dimensions
+	# of the entity so grip detection doesn't start from
+	# the dead center of entity.
 	grip_vectors = [
 		Vector2(grip_range + get_half_width(), 0),
 		Vector2(-grip_range - get_half_width(), 0),
@@ -69,7 +72,7 @@ func calculate_grip_vectors(pos):
 	
 	var ret = []
 	for grip_vector in grip_vectors:
-		var result = space_state.intersect_ray(position, grip_vector, [self])
+		var result = space_state.intersect_ray(position, position + grip_vector, [self])
 		ret.push_back(result)
 	
 	return ret
