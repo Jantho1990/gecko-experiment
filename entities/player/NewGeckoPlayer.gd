@@ -57,14 +57,14 @@ func calculate_grip_vectors(pos):
 	# of the entity so grip detection doesn't start from
 	# the dead center of entity.
 	grip_vectors = [
-		Vector2(grip_range + get_half_width(), 0),
-		Vector2(-grip_range - get_half_width(), 0),
-		Vector2(0, grip_range + get_half_height()),
-		Vector2(0, -grip_range - get_half_height()),
-		Vector2(grip_range, grip_range).normalized() * grip_range + Vector2(get_half_width(), get_half_height()),
-		Vector2(-grip_range, grip_range).normalized() * grip_range + Vector2(-get_half_width(), get_half_height()),
-		Vector2(grip_range, -grip_range).normalized() * grip_range + Vector2(get_half_width(), -get_half_height()),
-		Vector2(-grip_range, -grip_range).normalized() * grip_range + Vector2(-get_half_width(), -get_half_height())
+		Vector2(grip_range + get_half_width(), 0), # Right
+		Vector2(-grip_range - get_half_width(), 0), # Left
+		Vector2(0, grip_range + get_half_height()), # Up
+		Vector2(0, -grip_range - get_half_height()), # Down
+		Vector2(grip_range, grip_range).normalized() * grip_range + Vector2(get_half_width(), get_half_height()), # Down-Right
+		Vector2(-grip_range, grip_range).normalized() * grip_range + Vector2(-get_half_width(), get_half_height()), # Down-Left
+		Vector2(grip_range, -grip_range).normalized() * grip_range + Vector2(get_half_width(), -get_half_height()), # Up-Right
+		Vector2(-grip_range, -grip_range).normalized() * grip_range + Vector2(-get_half_width(), -get_half_height()) # Up-Left
 	]
 	
 	# The world around the entity.
