@@ -8,6 +8,7 @@ var grip_pressed = false
 var grip_active = false
 var gripping_surface = false
 var grip_range = 15 # How close entity needs to be in order to initiate grip, in pixels.
+var grippable_surface = [] # Keeps track of which sides of entity face a grippable surface.
 
 var grip_vectors = null
 
@@ -46,8 +47,8 @@ func _physics_process(delta):
 ###
 
 func scan_for_grippable_surface():
-	var grips = calculate_grip_vectors(position)
-	print(grips)
+	calculate_grip_vectors(position)
+	print(grippable_surface)
 
 func calculate_grip_vectors(pos):
 	# An array of vectors representing the eight sides
@@ -73,9 +74,10 @@ func calculate_grip_vectors(pos):
 	var ret = []
 	for grip_vector in grip_vectors:
 		var result = space_state.intersect_ray(position, position + grip_vector, [self])
-		ret.push_back(result)
+		var hit = !result.empty()
+		ret.push_back(hit)
 	
-	return ret
+	grippable_surface = ret
 
 # debug only
 func _draw():
