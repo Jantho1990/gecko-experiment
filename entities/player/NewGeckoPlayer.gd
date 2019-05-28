@@ -50,7 +50,7 @@ func _physics_process(delta):
 ###
 
 func scan_for_grippable_surface():
-	calculate_grip_vectors(position)
+	calculate_grippable_surfaces(position)
 	print(grippable_surface)
 
 func near_grippable_surface():
@@ -59,7 +59,7 @@ func near_grippable_surface():
 			return true
 	return false
 
-func calculate_grip_vectors(pos):
+func calculate_grippable_surfaces(pos):
 	# An array of vectors representing the eight sides
 	# of the entity, which will be used to perform
 	# eight raycasts.
