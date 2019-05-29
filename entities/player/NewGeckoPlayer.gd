@@ -42,7 +42,6 @@ func _physics_process(delta):
 		grip_releasing = false
 	
 	if should_attempt_grip():
-		print("CALCULATING")
 		scan_for_grippable_surfaces()
 		if near_grippable_surface():
 			grip_surface()
@@ -70,11 +69,9 @@ func should_release_grip():
 func handle_release_cancel():
 	scan_for_grippable_surfaces()
 	if not near_grippable_surface():
-		print("CANCEL RELEASE")
 		grip_releasing = false
 
 func grip_surface():
-	print("GRIP")
 	motion += 500 * grip_direction
 	gravity = false
 	$MovementHandler.set_overrides(movement_overrides)
@@ -83,7 +80,6 @@ func grip_surface():
 	gripping_surface = true
 
 func release_grip():
-	print("RELEASE")
 	gripping_surface = false
 	if not grip_releasing:
 		grip_releasing = true
@@ -91,7 +87,6 @@ func release_grip():
 	$MovementHandler.clear_overrides()
 
 func handle_grip_movement():
-	print("gripping...", grip_direction)
 	if Input.is_action_pressed("ui_down"):
 		$MovementHandler.down()
 	elif Input.is_action_pressed("ui_up"):
@@ -116,7 +111,6 @@ func near_grippable_surface():
 
 func calculate_grip_direction():
 	grip_direction = Vector2(0, 0)
-#	print("GV: ", grip_direction.length())
 	for key in grippable_surface:
 		var surface = grippable_surface[key]
 		if surface:
@@ -129,17 +123,6 @@ func calculate_grip_direction():
 					grip_direction += Vector2(0, 1)
 				"up":
 					grip_direction += Vector2(0, -1)
-#				"down-right":
-#					grip_direction += Vector2(1, 1)
-#				"down-left":
-#					grip_direction += Vector2(-1, 1)
-#				"up-right":
-#					grip_direction += Vector2(1, -1)
-#				"up-left":
-#					grip_direction += Vector2(-1, -1)
-	
-#	grip_direction = grip_direction.normalized()
-#	print("GVL: ", grip_direction.length(), grip_direction)
 
 func calculate_grippable_surfaces(pos = position):
 	# An array of vectors representing the eight sides
