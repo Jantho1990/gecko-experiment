@@ -40,7 +40,7 @@ func _physics_process(delta):
 	if Input.is_action_just_released("ui_grip"):
 		grip_pressed = false
 	
-	if grip_pressed and not grip_active:
+	if grip_pressed and not gripping_surface:
 		calculate_grip_direction()
 		scan_for_grippable_surface()
 		if near_grippable_surface():
