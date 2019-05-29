@@ -5,6 +5,7 @@ extends "res://entities/player/Player.gd"
 # and if they should be doing that.
 ###
 var grip_pressed = false
+var grip_hold = true
 var grip_active = false
 var gripping_surface = false
 var grip_range = 15 # How close entity needs to be in order to initiate grip, in pixels.
@@ -35,12 +36,37 @@ func _ready():
 func _physics_process(delta):
 	if Input.is_action_pressed("ui_grip"):
 		grip_pressed = true
+		
+	if Input.is_action_just_released("ui_grip"):
+		grip_pressed = false
+	
+	if grip_pressed and not grip_active:
+		calculate_grip_direction()
 		scan_for_grippable_surface()
 		if near_grippable_surface():
 			print("GRIP")
-			motion += 500 * direction
-	else:
-		grip_pressed = false
+			grip_active = true
+			motion += 500 * grip_direction
+			gravity = false
+			$MovementHandler.set_overrides(movement_overrides)
+			# cheating for now because we technically should wait until contact with the surface,
+			# but I'm not ready to write the code calculating when we actually hit the surface
+			gripping_surface = true
+	elif grip_pressed and gripping_surface:
+		gripping_surface = false
+		grip_active = false
+		gravity = true
+		$MovementHandler.clear_overrides()
+	
+	if gripping_surface:
+		print("gripping...", grip_direction)
+		if Input.is_action_pressed("ui_down"):
+			$MovementHandler.down()
+		elif Input.is_action_pressed("ui_up"):
+			$MovementHandler.up()
+		else:
+			$MovementHandler.idle()
+	
 	update()
 	
 
@@ -58,6 +84,32 @@ func near_grippable_surface():
 		if surface:
 			return true
 	return false
+
+func calculate_grip_direction():
+	grip_direction = Vector2(0, 0)
+	print("GV: ", grip_direction.length())
+	for key in grippable_surface:
+		var surface = grippable_surface[key]
+		if surface:
+			match key:
+				"right":
+					grip_direction += Vector2(1, 0)
+				"left":
+					grip_direction += Vector2(-1, 0)
+				"down":
+					grip_direction += Vector2(0, 1)
+				"up":
+					grip_direction += Vector2(0, -1)
+				"down-right":
+					grip_direction += Vector2(1, 1)
+				"down-left":
+					grip_direction += Vector2(-1, 1)
+				"up-right":
+					grip_direction += Vector2(1, -1)
+				"up-left":
+					grip_direction += Vector2(-1, -1)
+#	grip_direction = grip_direction.normalized()
+	print("GVL: ", grip_direction.length(), grip_direction)
 
 func calculate_grippable_surfaces(pos):
 	# An array of vectors representing the eight sides
