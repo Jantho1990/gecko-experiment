@@ -42,6 +42,7 @@ func _physics_process(delta):
 		grip_releasing = false
 	
 	if grip_pressed and not gripping_surface and not grip_releasing:
+		print("CALCULATING")
 		calculate_grippable_surfaces()
 		calculate_grip_direction()
 #		scan_for_grippable_surface()
@@ -53,16 +54,19 @@ func _physics_process(delta):
 			# cheating for now because we technically should wait until contact with the surface,
 			# but I'm not ready to write the code calculating when we actually hit the surface
 			gripping_surface = true
-	elif grip_releasing or (Input.is_action_just_pressed("ui_grip") and gripping_surface):
+	elif (grip_releasing or Input.is_action_just_pressed("ui_grip")) and gripping_surface:
 		print("RELEASE")
 		gripping_surface = false
 		if not grip_releasing:
 			grip_releasing = true
 		gravity = true
 		$MovementHandler.clear_overrides()
-	elif grip_releasing and not near_grippable_surface():
-		print("CANCEL RELEASE")
-		grip_releasing = false
+	elif grip_releasing:
+		calculate_grippable_surfaces()
+		calculate_grip_direction()
+		if not near_grippable_surface():
+			print("CANCEL RELEASE")
+			grip_releasing = false
 	
 	if gripping_surface:
 #		print("gripping...", grip_direction)
