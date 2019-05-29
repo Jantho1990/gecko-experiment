@@ -125,8 +125,8 @@ func calculate_grippable_surfaces(pos):
 		"up": Vector2(0, -grip_range - get_half_height()), # Up
 		"down-right": Vector2(grip_range, grip_range).normalized() * grip_range + Vector2(get_half_width(), get_half_height()), # Down-Right
 		"down-left": Vector2(-grip_range, grip_range).normalized() * grip_range + Vector2(-get_half_width(), get_half_height()), # Down-Left
-		"up-left": Vector2(grip_range, -grip_range).normalized() * grip_range + Vector2(get_half_width(), -get_half_height()), # Up-Right
-		"up-right": Vector2(-grip_range, -grip_range).normalized() * grip_range + Vector2(-get_half_width(), -get_half_height()) # Up-Left
+		"up-right": Vector2(grip_range, -grip_range).normalized() * grip_range + Vector2(get_half_width(), -get_half_height()), # Up-Right
+		"up-left": Vector2(-grip_range, -grip_range).normalized() * grip_range + Vector2(-get_half_width(), -get_half_height()) # Up-Left
 	}
 	
 	# The world around the entity.
