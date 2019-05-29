@@ -41,47 +41,18 @@ func _physics_process(delta):
 		grip_pressed = false
 		grip_releasing = false
 	
-	if grip_pressed and not gripping_surface and not grip_releasing:
+	if should_attempt_grip():
 		print("CALCULATING")
-		calculate_grippable_surfaces()
-		calculate_grip_direction()
-#		scan_for_grippable_surface()
+		scan_for_grippable_surfaces()
 		if near_grippable_surface():
-			print("GRIP")
-			motion += 500 * grip_direction
-			gravity = false
-			$MovementHandler.set_overrides(movement_overrides)
-			# cheating for now because we technically should wait until contact with the surface,
-			# but I'm not ready to write the code calculating when we actually hit the surface
-			gripping_surface = true
-	elif (grip_releasing or Input.is_action_just_pressed("ui_grip")) and gripping_surface:
-		print("RELEASE")
-		gripping_surface = false
-		if not grip_releasing:
-			grip_releasing = true
-		gravity = true
-		$MovementHandler.clear_overrides()
+			grip_surface()
+	elif should_release_grip():
+		release_grip()
 	elif grip_releasing:
-		calculate_grippable_surfaces()
-		calculate_grip_direction()
-		if not near_grippable_surface():
-			print("CANCEL RELEASE")
-			grip_releasing = false
+		handle_release_cancel()
 	
 	if gripping_surface:
-#		print("gripping...", grip_direction)
-		if Input.is_action_pressed("ui_down"):
-			$MovementHandler.down()
-		elif Input.is_action_pressed("ui_up"):
-			$MovementHandler.up()
-		else:
-			$MovementHandler.idle()
-		
-		# Update gripping position
-		calculate_grippable_surfaces()
-		calculate_grip_direction()
-		if not near_grippable_surface():
-			grip_releasing = true
+		handle_grip_movement()
 	
 	update()
 
@@ -90,9 +61,52 @@ func _physics_process(delta):
 # Other Methods
 ###
 
-func scan_for_grippable_surface():
-	calculate_grippable_surfaces(position)
-#	print(grippable_surface)
+func should_attempt_grip():
+	return grip_pressed and not gripping_surface and not grip_releasing
+
+func should_release_grip():
+	return (grip_releasing or Input.is_action_just_pressed("ui_grip")) and gripping_surface
+
+func handle_release_cancel():
+	scan_for_grippable_surfaces()
+	if not near_grippable_surface():
+		print("CANCEL RELEASE")
+		grip_releasing = false
+
+func grip_surface():
+	print("GRIP")
+	motion += 500 * grip_direction
+	gravity = false
+	$MovementHandler.set_overrides(movement_overrides)
+	# cheating for now because we technically should wait until contact with the surface,
+	# but I'm not ready to write the code calculating when we actually hit the surface
+	gripping_surface = true
+
+func release_grip():
+	print("RELEASE")
+	gripping_surface = false
+	if not grip_releasing:
+		grip_releasing = true
+	gravity = true
+	$MovementHandler.clear_overrides()
+
+func handle_grip_movement():
+	print("gripping...", grip_direction)
+	if Input.is_action_pressed("ui_down"):
+		$MovementHandler.down()
+	elif Input.is_action_pressed("ui_up"):
+		$MovementHandler.up()
+	else:
+		$MovementHandler.idle()
+	
+	# Update gripping position
+	scan_for_grippable_surfaces()
+	if not near_grippable_surface():
+		grip_releasing = true
+
+func scan_for_grippable_surfaces():
+	calculate_grippable_surfaces()
+	calculate_grip_direction()
 
 func near_grippable_surface():
 	for surface in grippable_surface.values():
