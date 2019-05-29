@@ -152,6 +152,9 @@ func _draw():
 
 func grip_move_down():
 	direction.y = 1
+	if grip_direction.y + direction.y == 0:
+		return
+		
 	motion.y = min(motion.y + ACCELERATION, MAX_SPEED)
 
 func grip_move_idle():
