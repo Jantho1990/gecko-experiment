@@ -7,7 +7,6 @@ extends "res://entities/player/Player.gd"
 var grip_pressed = false
 var grip_releasing = false
 var grip_hold = true
-var grip_active = false
 var gripping_surface = false
 var grip_range = 15 # How close entity needs to be in order to initiate grip, in pixels.
 var grippable_surface = [] # Keeps track of which sides of entity face a grippable surface.
@@ -48,7 +47,6 @@ func _physics_process(delta):
 #		scan_for_grippable_surface()
 		if near_grippable_surface():
 			print("GRIP")
-			grip_active = true
 			motion += 500 * grip_direction
 			gravity = false
 			$MovementHandler.set_overrides(movement_overrides)
@@ -60,7 +58,6 @@ func _physics_process(delta):
 		gripping_surface = false
 		if not grip_releasing:
 			grip_releasing = true
-		grip_active = false
 		gravity = true
 		$MovementHandler.clear_overrides()
 	elif grip_releasing and not near_grippable_surface():
