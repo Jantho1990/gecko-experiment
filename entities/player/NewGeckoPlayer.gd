@@ -5,6 +5,7 @@ extends "res://entities/player/Player.gd"
 # and if they should be doing that.
 ###
 var grip_pressed = false
+var grip_releasing = false
 var grip_hold = true
 var grip_active = false
 var gripping_surface = false
@@ -39,10 +40,12 @@ func _physics_process(delta):
 		
 	if Input.is_action_just_released("ui_grip"):
 		grip_pressed = false
+		grip_releasing = false
 	
-	if grip_pressed and not gripping_surface:
+	if grip_pressed and not gripping_surface and not grip_releasing:
+		calculate_grippable_surfaces()
 		calculate_grip_direction()
-		scan_for_grippable_surface()
+#		scan_for_grippable_surface()
 		if near_grippable_surface():
 			print("GRIP")
 			grip_active = true
@@ -52,23 +55,34 @@ func _physics_process(delta):
 			# cheating for now because we technically should wait until contact with the surface,
 			# but I'm not ready to write the code calculating when we actually hit the surface
 			gripping_surface = true
-	elif grip_pressed and gripping_surface:
+	elif grip_releasing or (Input.is_action_just_pressed("ui_grip") and gripping_surface):
+		print("RELEASE")
 		gripping_surface = false
+		if not grip_releasing:
+			grip_releasing = true
 		grip_active = false
 		gravity = true
 		$MovementHandler.clear_overrides()
+	elif grip_releasing and not near_grippable_surface():
+		print("CANCEL RELEASE")
+		grip_releasing = false
 	
 	if gripping_surface:
-		print("gripping...", grip_direction)
+#		print("gripping...", grip_direction)
 		if Input.is_action_pressed("ui_down"):
 			$MovementHandler.down()
 		elif Input.is_action_pressed("ui_up"):
 			$MovementHandler.up()
 		else:
 			$MovementHandler.idle()
+		
+		# Update gripping position
+		calculate_grippable_surfaces()
+		calculate_grip_direction()
+		if not near_grippable_surface():
+			grip_releasing = true
 	
 	update()
-	
 
 
 ###
@@ -77,7 +91,7 @@ func _physics_process(delta):
 
 func scan_for_grippable_surface():
 	calculate_grippable_surfaces(position)
-	print(grippable_surface)
+#	print(grippable_surface)
 
 func near_grippable_surface():
 	for surface in grippable_surface.values():
@@ -87,7 +101,7 @@ func near_grippable_surface():
 
 func calculate_grip_direction():
 	grip_direction = Vector2(0, 0)
-	print("GV: ", grip_direction.length())
+#	print("GV: ", grip_direction.length())
 	for key in grippable_surface:
 		var surface = grippable_surface[key]
 		if surface:
@@ -100,18 +114,19 @@ func calculate_grip_direction():
 					grip_direction += Vector2(0, 1)
 				"up":
 					grip_direction += Vector2(0, -1)
-				"down-right":
-					grip_direction += Vector2(1, 1)
-				"down-left":
-					grip_direction += Vector2(-1, 1)
-				"up-right":
-					grip_direction += Vector2(1, -1)
-				"up-left":
-					grip_direction += Vector2(-1, -1)
+#				"down-right":
+#					grip_direction += Vector2(1, 1)
+#				"down-left":
+#					grip_direction += Vector2(-1, 1)
+#				"up-right":
+#					grip_direction += Vector2(1, -1)
+#				"up-left":
+#					grip_direction += Vector2(-1, -1)
+	
 #	grip_direction = grip_direction.normalized()
-	print("GVL: ", grip_direction.length(), grip_direction)
+#	print("GVL: ", grip_direction.length(), grip_direction)
 
-func calculate_grippable_surfaces(pos):
+func calculate_grippable_surfaces(pos = position):
 	# An array of vectors representing the eight sides
 	# of the entity, which will be used to perform
 	# eight raycasts.
