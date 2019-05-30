@@ -100,6 +100,16 @@ func handle_grip_movement():
 		grip_releasing = true
 	
 	# Corner detection
+	# For acute-angle corners:
+	# - rotate away from current surface
+	# - push entity up towards target surface
+	# - this should reduce the distance of the mid-raycast for the gripping side
+	# - when the gripping side raycast approaches or reaches zero
+	#   - snap rotation to uniform angle
+	#   - end push
+	# For obtuse-angle corners:
+	# - rotate towards current surface, which should also rotate towards target surface
+	# - everything else is the same as for acute-angle corners
 
 func scan_for_grippable_surfaces():
 	calculate_grippable_surfaces()
@@ -138,10 +148,10 @@ func calculate_grippable_surfaces(pos = position):
 		"left": Vector2(-get_half_width(), 0), # Left
 		"down": Vector2(0, get_half_height()), # Down
 		"up": Vector2(0, -get_half_height()), # Up
-		"down-right": Vector2(grip_range, grip_range).normalized() + Vector2(get_half_width(), get_half_height()), # Down-Right
-		"down-left": Vector2(-grip_range, grip_range).normalized() + Vector2(-get_half_width(), get_half_height()), # Down-Left
-		"up-right": Vector2(grip_range, -grip_range).normalized() + Vector2(get_half_width(), -get_half_height()), # Up-Right
-		"up-left": Vector2(-grip_range, -grip_range).normalized() + Vector2(-get_half_width(), -get_half_height()) # Up-Left
+		"down-right": Vector2(get_half_width(), get_half_height()), # Down-Right
+		"down-left": Vector2(-get_half_width(), get_half_height()), # Down-Left
+		"up-right": Vector2(get_half_width(), -get_half_height()), # Up-Right
+		"up-left": Vector2(-get_half_width(), -get_half_height()) # Up-Left
 	}
 	
 	# The world around the entity.
