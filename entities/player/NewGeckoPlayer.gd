@@ -34,6 +34,8 @@ func _ready():
 	}
 
 func _physics_process(delta):
+	update()
+	
 	if Input.is_action_pressed("ui_grip"):
 		grip_pressed = true
 		
@@ -52,8 +54,6 @@ func _physics_process(delta):
 	
 	if gripping_surface:
 		handle_grip_movement()
-	
-	update()
 
 
 ###
@@ -98,6 +98,8 @@ func handle_grip_movement():
 	scan_for_grippable_surfaces()
 	if not near_grippable_surface():
 		grip_releasing = true
+	
+	# Corner detection
 
 func scan_for_grippable_surfaces():
 	calculate_grippable_surfaces()
@@ -105,7 +107,7 @@ func scan_for_grippable_surfaces():
 
 func near_grippable_surface():
 	for surface in grippable_surface.values():
-		if surface:
+		if surface.hit:
 			return true
 	return false
 
@@ -113,7 +115,7 @@ func calculate_grip_direction():
 	grip_direction = Vector2(0, 0)
 	for key in grippable_surface:
 		var surface = grippable_surface[key]
-		if surface:
+		if surface.hit:
 			match key:
 				"right":
 					grip_direction += Vector2(1, 0)
@@ -132,14 +134,14 @@ func calculate_grippable_surfaces(pos = position):
 	# of the entity so grip detection doesn't start from
 	# the dead center of entity.
 	grip_vectors = {
-		"right": Vector2(grip_range + get_half_width(), 0), # Right
-		"left": Vector2(-grip_range - get_half_width(), 0), # Left
-		"down": Vector2(0, grip_range + get_half_height()), # Down
-		"up": Vector2(0, -grip_range - get_half_height()), # Up
-		"down-right": Vector2(grip_range, grip_range).normalized() * grip_range + Vector2(get_half_width(), get_half_height()), # Down-Right
-		"down-left": Vector2(-grip_range, grip_range).normalized() * grip_range + Vector2(-get_half_width(), get_half_height()), # Down-Left
-		"up-right": Vector2(grip_range, -grip_range).normalized() * grip_range + Vector2(get_half_width(), -get_half_height()), # Up-Right
-		"up-left": Vector2(-grip_range, -grip_range).normalized() * grip_range + Vector2(-get_half_width(), -get_half_height()) # Up-Left
+		"right": Vector2(get_half_width(), 0), # Right
+		"left": Vector2(-get_half_width(), 0), # Left
+		"down": Vector2(0, get_half_height()), # Down
+		"up": Vector2(0, -get_half_height()), # Up
+		"down-right": Vector2(grip_range, grip_range).normalized() + Vector2(get_half_width(), get_half_height()), # Down-Right
+		"down-left": Vector2(-grip_range, grip_range).normalized() + Vector2(-get_half_width(), get_half_height()), # Down-Left
+		"up-right": Vector2(grip_range, -grip_range).normalized() + Vector2(get_half_width(), -get_half_height()), # Up-Right
+		"up-left": Vector2(-grip_range, -grip_range).normalized() + Vector2(-get_half_width(), -get_half_height()) # Up-Left
 	}
 	
 	# The world around the entity.
@@ -148,9 +150,16 @@ func calculate_grippable_surfaces(pos = position):
 	var ret = {}
 	for key in grip_vectors:
 		var grip_vector = grip_vectors[key]
-		var result = space_state.intersect_ray(position, position + grip_vector, [self])
+		var range_value = grip_range * grip_vector.normalized()
+		var result = space_state.intersect_ray(position + grip_vector, position + grip_vector + range_value, [self])
 		var hit = !result.empty()
-		ret[key] = (hit)
+		ret[key] = { "hit": hit }
+		if hit:
+			ret[key] = {
+				"hit": hit,
+				"distance": result.position.distance_to(position + grip_vector),
+				"raycast": result
+			}
 	
 	grippable_surface = ret
 
@@ -158,10 +167,11 @@ func calculate_grippable_surfaces(pos = position):
 func _draw():
 	if not grip_vectors.empty():
 		for grip_vector in grip_vectors.values():
+			var range_value = grip_range * grip_vector.normalized()
 #			if grip_pressed:
 #				print("Position: ", position, ", Global Position: ", global_position, ", Grip Vector: ", grip_vector)
 #			draw_circle(Vector2(0, 0), 50, Color(1, 1, 1))
-			draw_line(Vector2(0, 0), grip_vector, Color(1, 0, 0), 1)
+			draw_line(Vector2(0, 0) + grip_vector, grip_vector + range_value, Color(1, 0, 0), 1)
 
 func grip_move_down():
 	direction.y = 1
