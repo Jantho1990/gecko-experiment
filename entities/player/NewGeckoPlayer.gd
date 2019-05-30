@@ -110,6 +110,8 @@ func handle_grip_movement():
 	# For obtuse-angle corners:
 	# - rotate towards current surface, which should also rotate towards target surface
 	# - everything else is the same as for acute-angle corners
+	# Threshold should prolly be < 0.01
+	# - this would definitely require rotation snap
 
 func scan_for_grippable_surfaces():
 	calculate_grippable_surfaces()
