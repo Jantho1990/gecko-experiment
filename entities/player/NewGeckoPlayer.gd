@@ -9,7 +9,7 @@ var grip_releasing = false
 var grip_hold = true
 var gripping_surface = false
 var grip_range = 15 # How close entity needs to be in order to initiate grip, in pixels.
-var grippable_surface = [] # Keeps track of which sides of entity face a grippable surface.
+var grippable_surface = {} # Keeps track of which sides of entity face a grippable surface.
 
 var grip_vectors = {}
 
@@ -72,12 +72,12 @@ func handle_release_cancel():
 		grip_releasing = false
 
 func grip_surface():
-	motion += 500 * grip_direction
-	gravity = false
-	$MovementHandler.set_overrides(movement_overrides)
-	# cheating for now because we technically should wait until contact with the surface,
-	# but I'm not ready to write the code calculating when we actually hit the surface
-	gripping_surface = true
+	if not gripping_surface and grippable_surface_contact():
+		gripping_surface = true
+		gravity = false
+		$MovementHandler.set_overrides(movement_overrides)
+	else:
+		motion += 500 * grip_direction
 
 func release_grip():
 	gripping_surface = false
@@ -112,6 +112,51 @@ func handle_grip_movement():
 	# - everything else is the same as for acute-angle corners
 	# Threshold should prolly be < 0.01
 	# - this would definitely require rotation snap
+
+func in_acute_corner():
+	pass
+
+func grippable_surface_hit(direction = ""):
+	if direction == "":
+		for surface in grippable_surface.values():
+			if surface.hit:
+				return true
+	
+	if grippable_surface.has(direction):
+		if grippable_surface[direction].hit:
+			return true
+	else:
+		print("Unknown grip direction: ", direction)
+	
+	return false
+
+func grippable_surface_contact(direction = ""):
+	if direction == "":
+		for surface in grippable_surface.values():
+			if surface.hit:
+				return true
+	
+	if grippable_surface.has(direction):
+		if grippable_surface[direction].contact:
+			return true
+	else:
+		print("Unknown grip direction: ", direction)
+	
+	return false
+
+func in_contact_range(distance):
+	var threshold = 0.01
+	return distance <= threshold
+
+func surface_in_contact_range(direction = null):
+	if direction == null:
+		return in_contact_range(direction.distance)
+	else:
+		for surface in grippable_surface.values():
+			if in_contact_range(surface.distance):
+				return true
+	
+	return false
 
 func scan_for_grippable_surfaces():
 	calculate_grippable_surfaces()
@@ -167,9 +212,11 @@ func calculate_grippable_surfaces(pos = position):
 		var hit = !result.empty()
 		ret[key] = { "hit": hit }
 		if hit:
+			var distance = result.position.distance_to(position + grip_vector)
 			ret[key] = {
 				"hit": hit,
-				"distance": result.position.distance_to(position + grip_vector),
+				"distance": distance,
+				"contact": in_contact_range(distance),
 				"raycast": result
 			}
 	
