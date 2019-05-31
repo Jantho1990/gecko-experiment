@@ -16,6 +16,9 @@ var grip_vectors = {}
 # Which side of the entity is doing the gripping.
 var grip_direction = Vector2(0, 0)
 
+# Are we in a corner right now?
+var in_corner = false
+
 var movement_overrides setget _set_private,_get_private 
 
 func _set_private(_throwaway_):
@@ -34,7 +37,7 @@ func _ready():
 	}
 
 func _physics_process(delta):
-	update()
+	update() # Used to trigger the _draw function
 	
 	if Input.is_action_pressed("ui_grip"):
 		grip_pressed = true
@@ -100,35 +103,88 @@ func handle_grip_movement():
 		grip_releasing = true
 	
 	# Corner detection
-	# For acute-angle corners:
+	if in_obtuse_angle_corner():
+		obtuse_angle_corner_transfer()
+		print("obtuse")
+	elif in_reflex_angle_corner():
+		reflex_angle_corner_transfer()
+		print("reflex")
+	else:
+#		print("nah")
+		pass
+	
+	# Corner detection
+	# For obtuse-angle corners ( 90 < angle < 180):
 	# - rotate away from current surface
 	# - push entity up towards target surface
 	# - this should reduce the distance of the mid-raycast for the gripping side
 	# - when the gripping side raycast approaches or reaches zero
 	#   - snap rotation to uniform angle
 	#   - end push
-	# For obtuse-angle corners:
+	# For reflex-angle corners ( angle > 180deg):
 	# - rotate towards current surface, which should also rotate towards target surface
 	# - everything else is the same as for acute-angle corners
 	# Threshold should prolly be < 0.01
 	# - this would definitely require rotation snap
 
-func in_acute_corner():
+func in_obtuse_angle_corner():
+	return grippable_surface_hit(["up", "down"])
+
+func obtuse_angle_corner_transfer():
+	if not in_corner:
+		in_corner = true
+	rotation_degrees += 10 * (-grip_direction.x if grip_direction.x != 0 else -grip_direction.y)
+	motion += 500 * grip_direction
+	
+	if grippable_surface_hit("left"):
+		if grippable_surface_contact("left"):
+			breakpoint
+		else:
+			print(grippable_surface["left"], position)
+	elif grippable_surface_hit("right"):
+		if grippable_surface_contact("right"):
+			breakpoint
+		else:
+			print(grippable_surface["right"], position)
+	else:
+		print(grip_direction, position)
+#		breakpoint
+
+func in_reflex_angle_corner():
+	return not grippable_surface_hit(["left", "right"])
+
+func reflex_angle_corner_transfer():
 	pass
 
 func grippable_surface_hit(direction = ""):
-	if direction == "":
+	if typeof(direction) == TYPE_STRING and direction == "":
 		for surface in grippable_surface.values():
 			if surface.hit:
 				return true
-	
-	if grippable_surface.has(direction):
+	elif typeof(direction) == TYPE_ARRAY:
+		for dir in direction:
+			if grippable_surface.has(dir):
+				if grippable_surface[dir].hit:
+					return true
+			else:
+				print("Unknown grip direction: ", dir)
+	elif grippable_surface.has(direction):
 		if grippable_surface[direction].hit:
 			return true
 	else:
 		print("Unknown grip direction: ", direction)
 	
 	return false
+
+func grippable_surface_hit_all(direction = ""):
+	if typeof(direction) == TYPE_STRING and direction == "":
+		return grippable_surface_hit(direction)
+	elif typeof(direction) == TYPE_ARRAY:
+		for dir in direction:
+			var ret = grippable_surface_hit(dir)
+			if not ret:
+				return false
+		return true
 
 func grippable_surface_contact(direction = ""):
 	if direction == "":
@@ -145,7 +201,7 @@ func grippable_surface_contact(direction = ""):
 	return false
 
 func in_contact_range(distance):
-	var threshold = 0.01
+	var threshold = 0.015
 	return distance <= threshold
 
 func surface_in_contact_range(direction = null):
