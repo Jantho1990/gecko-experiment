@@ -1,13 +1,16 @@
 extends Node2D
 
-const THRESHOLD = 3
+const THRESHOLD = 1
+
+# Toggle debugging on and off.
+var debug = false
 
 # Which side of the entity is doing the gripping.
 var grip_direction = Vector2(0, 0)
 
 var grip_vectors = {}
 var grippable_surface = {}
-var grip_range = 15
+var grip_range = 21
 
 var in_corner = false
 
@@ -25,10 +28,14 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("ui_accept"):
 		breakpoint
 	calculate_grippable_surfaces()
-	update()
+	
+	# Only draw if holding down the key
+	if debug:
+		update()
 
 func _draw():
-	draw_grip_range()
+	if debug:
+		draw_grip_range()
 
 func calculate_grip_direction():
 	grip_direction = Vector2(0, 0)
@@ -215,10 +222,13 @@ func in_contact_range(distance):
 # - this would definitely require rotation snap
 
 func in_obtuse_angle_corner():
-	return in_corner or grippable_surface_hit(["up", "down"])
+#	return in_corner or grippable_surface_hit(["up", "down"])
+	return in_corner or \
+		grippable_surface_hit_all(["up-left", "up-right", "left", "up"]) or \
+		grippable_surface_hit_all(["down-left", "down-right", "left", "down"])
 
 func in_reflex_angle_corner():
-	return not grippable_surface_hit(["left", "right"])
+	return not grippable_surface_hit(["left", "right", "up", "down"])
 
 func near_grippable_surface():
 	for surface in grippable_surface.values():

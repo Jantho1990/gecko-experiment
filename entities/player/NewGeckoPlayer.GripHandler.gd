@@ -34,6 +34,7 @@ func _ready():
 		"up": funcref(self, "grip_move_up")
 	}
 	GripDetection.set_dimensions(get_width(), get_height())
+	GripDetection.debug = true
 
 func _physics_process(delta):
 	update() # Used to trigger the _draw function
@@ -117,18 +118,21 @@ func handle_grip_movement():
 func obtuse_angle_corner_transfer():
 	if not in_corner:
 		in_corner = true
+		GripDetection.in_corner = true
 		corner_direction = GripDetection.grip_direction
-	rotation_degrees += 0.1 * (-corner_direction.x if corner_direction.x != 0 else -corner_direction.y)
+	rotation_degrees += 10 * (-corner_direction.x if corner_direction.x != 0 else -corner_direction.y)
 	motion += 500 * corner_direction
 	
 	if GripDetection.grippable_surface_hit("left") and \
 		GripDetection.grippable_surface_contact("left"):
-			breakpoint
+#			breakpoint
+			pass
 	else:
 		print("left ", GripDetection.grippable_surface["left"], position)
 	if GripDetection.grippable_surface_hit("right") and \
 		GripDetection.grippable_surface_contact("right"):
-			breakpoint
+#			breakpoint
+			pass
 	elif GripDetection.grippable_surface_hit("right"):
 		print("right ", GripDetection.grippable_surface["right"], position)
 #	else:
