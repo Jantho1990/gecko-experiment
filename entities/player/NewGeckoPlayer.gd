@@ -18,6 +18,7 @@ var grip_direction = Vector2(0, 0)
 
 # Are we in a corner right now?
 var in_corner = false
+var corner_direction = Vector2(0, 0) # used to save the grip direction at the time a corner is being navigated
 
 var movement_overrides setget _set_private,_get_private 
 
@@ -84,6 +85,8 @@ func grip_surface():
 
 func release_grip():
 	gripping_surface = false
+	if in_corner:
+		in_corner = false
 	if not grip_releasing:
 		grip_releasing = true
 	gravity = true
@@ -128,26 +131,27 @@ func handle_grip_movement():
 	# - this would definitely require rotation snap
 
 func in_obtuse_angle_corner():
-	return grippable_surface_hit(["up", "down"])
+	return in_corner or grippable_surface_hit(["up", "down"])
 
 func obtuse_angle_corner_transfer():
 	if not in_corner:
 		in_corner = true
-	rotation_degrees += 10 * (-grip_direction.x if grip_direction.x != 0 else -grip_direction.y)
-	motion += 500 * grip_direction
+		corner_direction = grip_direction
+	rotation_degrees += 0.1 * (-corner_direction.x if corner_direction.x != 0 else -corner_direction.y)
+	motion += 500 * corner_direction
 	
-	if grippable_surface_hit("left"):
-		if grippable_surface_contact("left"):
+	if grippable_surface_hit("left") and \
+		grippable_surface_contact("left"):
 			breakpoint
-		else:
-			print(grippable_surface["left"], position)
-	elif grippable_surface_hit("right"):
-		if grippable_surface_contact("right"):
-			breakpoint
-		else:
-			print(grippable_surface["right"], position)
 	else:
-		print(grip_direction, position)
+		print("left ", grippable_surface["left"], position)
+	if grippable_surface_hit("right") and \
+		grippable_surface_contact("right"):
+			breakpoint
+	elif grippable_surface_hit("right"):
+		print("right ", grippable_surface["right"], position)
+#	else:
+#		print(grip_direction, position)
 #		breakpoint
 
 func in_reflex_angle_corner():
@@ -264,16 +268,21 @@ func calculate_grippable_surfaces(pos = position):
 	for key in grip_vectors:
 		var grip_vector = grip_vectors[key]
 		var range_value = grip_range * grip_vector.normalized()
-		var result = space_state.intersect_ray(position + grip_vector, position + grip_vector + range_value, [self])
+		var result = space_state.intersect_ray(
+			position + grip_vector,
+			position + grip_vector + range_value,
+			[self]
+		)
 		var hit = !result.empty()
-		ret[key] = { "hit": hit }
+		ret[key] = { "hit": hit, "grip_vector": grip_vector, "contact": false }
 		if hit:
 			var distance = result.position.distance_to(position + grip_vector)
 			ret[key] = {
 				"hit": hit,
 				"distance": distance,
 				"contact": in_contact_range(distance),
-				"raycast": result
+				"raycast": result,
+				"grip_vector": grip_vector
 			}
 	
 	grippable_surface = ret
@@ -281,12 +290,18 @@ func calculate_grippable_surfaces(pos = position):
 # debug only
 func _draw():
 	if not grip_vectors.empty():
-		for grip_vector in grip_vectors.values():
+		for surface in grippable_surface.values():
+			var grip_vector = surface.grip_vector
 			var range_value = grip_range * grip_vector.normalized()
 #			if grip_pressed:
 #				print("Position: ", position, ", Global Position: ", global_position, ", Grip Vector: ", grip_vector)
 #			draw_circle(Vector2(0, 0), 50, Color(1, 1, 1))
-			draw_line(Vector2(0, 0) + grip_vector, grip_vector + range_value, Color(1, 0, 0), 1)
+			var color = Color(1, 0, 0)
+			if surface.contact:
+				color = Color(0, 1, 0)
+			elif surface.hit:
+				color = Color(0, 0, 1)
+			draw_line(Vector2(0, 0) + grip_vector, grip_vector + range_value, color, 1)
 
 func grip_move_down():
 	direction.y = 1
