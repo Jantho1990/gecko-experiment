@@ -105,15 +105,17 @@ func handle_grip_movement():
 		grip_releasing = true
 	
 	# Corner detection
-	if GripDetection.in_obtuse_angle_corner():
-		obtuse_angle_corner_transfer()
-		print("obtuse")
-	elif GripDetection.in_reflex_angle_corner():
-		reflex_angle_corner_transfer()
-		print("reflex")
-	else:
-#		print("nah")
-		pass
+	if GripDetection.in_corner():
+		print(GripDetection.detect_corner_type())
+#	if GripDetection.in_obtuse_angle_corner():
+#		obtuse_angle_corner_transfer()
+#		print("obtuse")
+#	elif GripDetection.in_reflex_angle_corner():
+#		reflex_angle_corner_transfer()
+#		print("reflex")
+#	else:
+##		print("nah")
+#		pass
 
 func obtuse_angle_corner_transfer():
 	if not in_corner:

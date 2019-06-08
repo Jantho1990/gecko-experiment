@@ -19,6 +19,18 @@ var height = 1 # start at 1 to prevent division by 0
 
 var raycasts = {}
 
+# Bitmask values for surface hit directions
+const direction_names_bitmask = {
+	"right": 1,
+	"left": 2,
+	"down": 4,
+	"up": 8,
+	"down-right": 16,
+	"down-left": 32,
+	"up-right": 64,
+	"up-left": 128
+}
+
 func _ready():
 	pass
 #	grip_vectors = create_grip_vectors()
@@ -137,6 +149,26 @@ func draw_grip_range():
 			var ln = raycast.position + raycast.cast_to
 #			draw_line(Vector2(0, 0) + grip_vector, grip_vector + range_value, color, 1)
 
+# Identify what kind of corner we are in.
+func detect_corner_type():
+	# Need to have various configurations of
+	# surface detections which indicate what
+	# kind of corner we are hitting.
+	#var hits_and_contacts = get_surface_hits() + (get_surface_contacts() * 2) # multiplying contacts to distinguish their bitmasks from the hits
+	var contacts_and_hits = get_surface_contacts_and_hits()
+#	print(contacts_and_hits)
+	match contacts_and_hits:
+		["left", "up", _, "up-right", "up-left", ..]:
+			return "up left 90"
+		["right", "up", _, "up-right", "up-left", ..]:
+			return "up right 90"
+		["left", "down", "down-right", "down-left", ..]:
+			return "down left 90"
+		["right", "down", "down-right", "down-left", ..]:
+			return "down right 90"
+		_:
+			return ""
+
 func get_height():
 	return height
 
@@ -148,6 +180,32 @@ func get_width():
 
 func get_half_width():
 	return width / 2
+
+# Return a bitmask number of all contacted surfaces
+func get_surface_contacts():
+	var ret = 0
+	for key in grippable_surface:
+		var surface = grippable_surface[key]
+		if surface.contact:
+			ret += direction_names_bitmask[key]
+	return ret
+
+func get_surface_contacts_and_hits():
+	var ret = []
+	for key in grippable_surface:
+		var surface = grippable_surface[key]
+		if surface.contact or surface.hit:
+			ret.push_back(key)
+	return ret
+
+# Return a bitmask number of all hit surfaces
+func get_surface_hits():
+	var ret = 0
+	for key in grippable_surface:
+		var surface = grippable_surface[key]
+		if surface.hit:
+			ret += direction_names_bitmask[key]
+	return ret
 
 func get_raycast_result(raycast):
 	raycast.force_raycast_update() # this is needed because the parent has moved since the last calculation, which throws off the distance calculation; feels ugly but the alternative is copying parent motion into the distance calculation, which seems worse
@@ -206,6 +264,9 @@ func grippable_surface_hit_all(direction = ""):
 
 func in_contact_range(distance):
 	return distance <= THRESHOLD
+
+func in_corner():
+	return detect_corner_type() != ""
 
 # Corner detection
 # For obtuse-angle corners ( 90 < angle < 180):
